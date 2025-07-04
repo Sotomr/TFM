@@ -8,8 +8,8 @@ MODEL_LIST    = ["lstm_t1"]   # lista de modelos que el back-test va a usar
 ALGO          = "nsga2"       # algoritmo evolutivo por defecto
 W_MAX         = 0.20          # peso máximo por activo
 CRYPTO_MAX    = 0.10          # techo combinado BTC+ETH
-COST_TRADE    = 0.2        # coste total por rotación (0.12 %)
-MAX_TURNOVER = 0.8
+COST_TRADE    = 0.002        # coste total por rotación (0.12 %)
+MAX_TURNOVER = 0.5
 
 ROOT   = Path(__file__).resolve().parents[1]
 DATA   = ROOT / "data"
