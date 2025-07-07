@@ -57,6 +57,9 @@ def resolver_optimizacion(mu_hat: np.ndarray,
             out["F"] = np.column_stack([risk, ret])
             out["G"] = np.column_stack([g1, g2, g_turn])
 
+
+    np.random.seed(cfg.RANDOM_SEED)
+
     res = minimize(
         PortOpt(w_prev),
         NSGA2(pop_size=cfg.POP_SIZE),
