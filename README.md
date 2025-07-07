@@ -30,3 +30,21 @@ This repository evaluates whether adding a machine learning model improves a por
 
 The notebooks rely on Python packages such as `pandas`, `numpy`, `scikit-learn`, `joblib`, `tensorflow` (for the LSTM), `lightgbm`, and `pymoo`. Training the LSTM‑5d network can be time‑consuming; a modern GPU is recommended but CPU execution is also possible (see GPU detection output in the training logs【F:notebooks/tft/03_train_tft.ipynb†L112-L112】).
 
+## Running the Ridge backtest
+
+1. Execute `notebooks/02_preprocess_data.ipynb` to compute daily returns and save the scalers.
+2. Train a Ridge regression model for each asset using `notebooks/ridge/02_train_ridge.ipynb`.
+3. Set `cfg.MODEL_TYPE = "ridge"` in `src/config.py` and run `notebooks/06_backtest.ipynb`.
+4. The resulting returns and equity curve are stored in `results/backtest_ridge.pkl`【F:notebooks/06_backtest.ipynb†L318-L327】.
+
+## LSTM‑5d+VIX workflow
+
+1. Preprocess the data with `notebooks/lstm5d/02_preprocess_lstm5d.ipynb`. This notebook produces `data/processed/lstm5d_vix.pkl` containing the 60‑day sequences with VIX and momentum features【F:notebooks/lstm5d/02_preprocess_lstm5d.ipynb†L520-L534】.
+2. Train the model in `notebooks/lstm5d/03_train_lstm5d.ipynb`; it loads `lstm5d_vix.pkl` and saves the network as `models/lstm5d_vix.keras` along with the training history【F:notebooks/lstm5d/03_train_lstm5d.ipynb†L32-L39】【F:notebooks/lstm5d/03_train_lstm5d.ipynb†L333-L343】.
+3. Edit `src/config.py` so that `MODEL_TYPE = "lstm5d"` and `LSTM5D_MODEL_NAME = "lstm5d_vix.keras"` then run `notebooks/06_backtest.ipynb` to generate the trading signals.
+4. The equity curve of this backtest is saved to `results/backtest_lstm5d.pkl`.
+
+## Walk‑forward evaluation
+
+`notebooks/09_walk_forward.ipynb` applies a walk‑forward procedure over several sub‑periods. After running it, the cumulative equity series can be inspected (and optionally saved) from the variable `equity` computed at the end of the notebook【F:notebooks/09_walk_forward.ipynb†L108-L129】.
+
