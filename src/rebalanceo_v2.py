@@ -7,9 +7,14 @@ from pymoo.operators.sampling.rnd import FloatRandomSampling
 from pymoo.operators.crossover.sbx import SBX
 from pymoo.operators.mutation.pm import PM
 from scipy.stats import norm
+# ✅ AÑADIDO para reproducibilidad
+from src import config as cfg
 
 def scen_simul(r_hat, Sigma, n_scen=5_000):
     """Muestra escenarios P&L ~ N(r_hat, Σ).  Shape -> (n_scen, N)"""
+    # ✅ CRÍTICO: Fijar semilla para reproducibilidad
+    np.random.seed(cfg.RANDOM_SEED)
+    
     L = np.linalg.cholesky(Sigma + 1e-12*np.eye(len(r_hat)))
     z = np.random.randn(n_scen, len(r_hat))
     return r_hat + z @ L.T          # log-returns por activo
@@ -46,6 +51,9 @@ class PortfolioProblemV2(Problem):
 
 # --- helpers ------------------------------------------------
 def resolver_optimizacion_v2(r_hat, Sigma, w_prev, tau=0.4):
+    # ✅ REPRODUCIBILIDAD: Fijar semilla antes de simular
+    np.random.seed(cfg.RANDOM_SEED)
+    
     R = scen_simul(r_hat, Sigma, n_scen=5_000)
     problem = PortfolioProblemV2(R, w_prev, tau=tau)
     algo = NSGA2(pop_size=300,
@@ -55,7 +63,8 @@ def resolver_optimizacion_v2(r_hat, Sigma, w_prev, tau=0.4):
                  eliminate_duplicates=True)
     res = minimize(problem, algo,
                    termination=get_termination("n_gen", 250),
-                   seed=42, verbose=False)
+                   seed=cfg.RANDOM_SEED,  # ✅ AÑADIDO
+                   verbose=False)
     return res
 
 def elegir_w_star_v2(res):

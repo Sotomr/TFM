@@ -5,6 +5,8 @@ from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.core.problem import Problem
 from pymoo.optimize import minimize
 
+# ✅ AÑADIDO: Asegurar reproducibilidad
+import random
 
 # En config.py define, si aún no lo tienes:
 # cfg.MAX_TURNOVER = 0.40     # 40 % máx. de rotación por rebalanceo
@@ -26,6 +28,10 @@ def resolver_optimizacion(mu_hat: np.ndarray,
     Devuelve la frontera de Pareto (riesgo, retorno neto) con restricción dura
     de rotación ∑|Δw| ≤ τ.
     """
+    # ✅ CRÍTICO: Fijar semillas para reproducibilidad
+    np.random.seed(cfg.RANDOM_SEED)
+    random.seed(cfg.RANDOM_SEED)
+    
     n = len(mu_hat)
     btc_idx, eth_idx = 0, 1          # ajusta si cambia el orden de columnas
 
@@ -57,13 +63,12 @@ def resolver_optimizacion(mu_hat: np.ndarray,
             out["F"] = np.column_stack([risk, ret])
             out["G"] = np.column_stack([g1, g2, g_turn])
 
-
-    np.random.seed(cfg.RANDOM_SEED)
-
+    # ✅ REPRODUCIBILIDAD: Usar semilla también en el minimize
     res = minimize(
         PortOpt(w_prev),
         NSGA2(pop_size=cfg.POP_SIZE),
         termination=('n_gen', cfg.N_GENS),
+        seed=cfg.RANDOM_SEED,  # ✅ AÑADIDO
         verbose=False
     )
     return res
