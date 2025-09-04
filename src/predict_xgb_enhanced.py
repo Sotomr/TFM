@@ -57,7 +57,6 @@ def predict_xgb_enhanced(df_prices: pd.DataFrame, fecha: pd.Timestamp, tickers: 
         else:
             vix = vix_raw.iloc[:, -1].reindex(df_prices.index, method="ffill")
         
-        # ✅ SPY - FIX YFINANCE COLUMNS
         spy_raw = yf.download("SPY", start=df_prices.index.min(), end=fecha + timedelta(days=1), progress=False, auto_adjust=False)
         if 'Adj Close' in spy_raw.columns:
             spy_prices = spy_raw["Adj Close"].reindex(df_prices.index, method="ffill")
@@ -67,7 +66,7 @@ def predict_xgb_enhanced(df_prices: pd.DataFrame, fecha: pd.Timestamp, tickers: 
             spy_prices = spy_raw.iloc[:, -1].reindex(df_prices.index, method="ffill")
         spy_ret = np.log(spy_prices / spy_prices.shift(1)).dropna()
     except:
-        # Fallback sin datos macro
+
         vix = pd.Series(20, index=df_prices.index)  # VIX promedio
         spy_ret = pd.Series(0, index=df_prices.index)
 
@@ -85,7 +84,6 @@ def predict_xgb_enhanced(df_prices: pd.DataFrame, fecha: pd.Timestamp, tickers: 
             prices = df_prices[ticker]
             returns = df_ret[ticker]
             
-            # === CALCULAR TODAS LAS 23+ FEATURES ===
             
             # Retornos multi-periodo
             ret_1d = returns.loc[fecha]
