@@ -7,7 +7,6 @@ from pymoo.operators.sampling.rnd import FloatRandomSampling
 from pymoo.operators.crossover.sbx import SBX
 from pymoo.operators.mutation.pm import PM
 
-# Clase de problema (como ya usaste)
 class PortfolioProblem(Problem):
     def __init__(self, r_hat, Sigma):
         super().__init__(n_var=len(r_hat), n_obj=3, n_constr=2, xl=0.0, xu=0.2)
