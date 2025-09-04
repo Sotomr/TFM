@@ -2,8 +2,6 @@
 """
 Script de validación para verificar que todos los modelos del TFM 
 generan predicciones únicas y realistas.
-
-Ejecutar desde: notebooks/
 """
 
 import sys, pathlib
@@ -61,10 +59,10 @@ def validate_model_predictions():
     
     for model_name, model_path in models_to_test.items():
         if not model_path.exists():
-            print(f"⚠️ {model_name}: Modelo no encontrado en {model_path}")
+            print(f" {model_name}: Modelo no encontrado en {model_path}")
             continue
             
-        print(f"\n📊 Validando {model_name.upper()}...")
+        print(f"\n Validando {model_name.upper()}...")
         
         try:
             # Cargar modelo y escaladores
@@ -103,7 +101,7 @@ def validate_model_predictions():
                     model_preds.append(r_hat)
                     
                 except Exception as e:
-                    print(f"  ❌ Error en fecha {fecha}: {e}")
+                    print(f"   Error en fecha {fecha}: {e}")
                     continue
             
             if model_preds:
@@ -111,17 +109,17 @@ def validate_model_predictions():
                 predictions[model_name] = pred_array
                 
                 # Estadísticas
-                print(f"  ✅ Predicciones: {len(model_preds)}")
-                print(f"  📈 Media: {pred_array.mean():.4f}")
-                print(f"  📊 Std:  {pred_array.std():.4f}")
-                print(f"  📉 Min:  {pred_array.min():.4f}")
-                print(f"  📈 Max:  {pred_array.max():.4f}")
+                print(f"   Predicciones: {len(model_preds)}")
+                print(f"   Media: {pred_array.mean():.4f}")
+                print(f"   Std:  {pred_array.std():.4f}")
+                print(f"   Min:  {pred_array.min():.4f}")
+                print(f"   Max:  {pred_array.max():.4f}")
                 
         except Exception as e:
-            print(f"  ❌ ERROR cargando {model_name}: {e}")
+            print(f"   ERROR cargando {model_name}: {e}")
     
     # Comparar predicciones entre modelos
-    print(f"\n🔬 ANÁLISIS DE DIFERENCIAS ENTRE MODELOS")
+    print(f"\n ANÁLISIS DE DIFERENCIAS ENTRE MODELOS")
     print("=" * 50)
     
     if len(predictions) >= 2:
@@ -144,13 +142,13 @@ def validate_model_predictions():
                     print(f"    RMSE:        {rmse:.4f}")
                     
                     if abs(corr) > 0.99:
-                        print(f"    🚨 ALERTA: Modelos muy similares!")
+                        print(f"     ALERTA: Modelos muy similares!")
                     elif abs(corr) < 0.1:
-                        print(f"    ✅ Buenos: Predicciones diferentes")
+                        print(f"     Buenos: Predicciones diferentes")
                     else:
-                        print(f"    ⚠️  Moderado: Correlación media")
+                        print(f"      Moderado: Correlación media")
     
-    print(f"\n✅ VALIDACIÓN COMPLETADA")
+    print(f"\n VALIDACIÓN COMPLETADA")
     return predictions
 
 if __name__ == "__main__":
