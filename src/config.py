@@ -1,5 +1,4 @@
-# ─── src/config.py ─────────────────────────────────────────────
-# Parámetros globales (versión inicial – iremos ampliando luego)
+
 from pathlib import Path
 WINDOW        = 60      # tamaño de la ventana look-back (días)
 REBAL_FREQ    = 10       # frecuencia de rebalanceo (días) - ALINEADO CON LSTM5D
