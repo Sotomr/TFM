@@ -30,7 +30,7 @@ CNN5D_MODEL_NAME    = "cnn5d.keras"
 POP_SIZE = 300    
 N_GENS   = 450    
 TAU            = 0.4         # turnover máximo
-CRYPTO_IDX     = [0,1]       # índices de BTC, ETH en tu vector de activos
+CRYPTO_IDX     = [0,1]      
 
 
 START_BACKTEST = "2019-01-01"
