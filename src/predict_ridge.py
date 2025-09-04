@@ -30,8 +30,7 @@ def predict_ridge(df_prices: pd.DataFrame, fecha: pd.Timestamp, tickers: list[st
                 df_vol5.loc[fecha, ticker],
                 df_mom.loc[fecha, ticker],
             ]
-            
-            # ✅ VALIDAR QUE NO HAY NaN O INF
+
             if any(pd.isna(val) or np.isinf(val) for val in features):
                 # Reemplazar con valores seguros si hay NaN/Inf
                 features = [
@@ -49,14 +48,11 @@ def predict_ridge(df_prices: pd.DataFrame, fecha: pd.Timestamp, tickers: list[st
     if not datos:
         return pd.Series(dtype=float)
 
-    # ✅ CREAR DATAFRAME Y VERIFICAR LIMPIEZA
     X = pd.DataFrame([x[1] for x in datos], columns=["ret_1d", "ret_5d", "vol_5d", "momentum"])
     tickers_ok = [x[0] for x in datos]
     
-    # ✅ VERIFICACIÓN FINAL: Reemplazar cualquier NaN residual
     X = X.fillna(0)
     
-    # ✅ VERIFICACIÓN: Clipping de valores extremos
     X['ret_1d'] = X['ret_1d'].clip(-0.2, 0.2)
     X['ret_5d'] = X['ret_5d'].clip(-0.5, 0.5)
     X['vol_5d'] = X['vol_5d'].clip(0.001, 1.0)  # Volatilidad positiva
