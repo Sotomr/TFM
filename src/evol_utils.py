@@ -1,26 +1,20 @@
-# === evol_utils.py ===
+
 import numpy as np
 from src import config as cfg
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.core.problem import Problem
 from pymoo.optimize import minimize
 
-# ✅ AÑADIDO: Asegurar reproducibilidad
 import random
 
-# En config.py define, si aún no lo tienes:
-# cfg.MAX_TURNOVER = 0.40     # 40 % máx. de rotación por rebalanceo
 
-TOL = 1e-4                    # holgura |∑w−1| ≤ TOL
+TOL = 1e-4                  
 
-
-# ───────────────────────────────── helpers ──────────────────────────────────
 def _risk(mat_w: np.ndarray, sigma: np.ndarray) -> np.ndarray:
     """Varianza vectorizada que sirve tanto para w shape (n,) como (m, n)."""
     return np.sum((mat_w @ sigma) * mat_w, axis=-1)
 
 
-# ────────────────────────── optimizador NSGA-II ─────────────────────────────
 def resolver_optimizacion(mu_hat: np.ndarray,
                            Sigma: np.ndarray,
                            w_prev: np.ndarray | None = None):
@@ -28,12 +22,11 @@ def resolver_optimizacion(mu_hat: np.ndarray,
     Devuelve la frontera de Pareto (riesgo, retorno neto) con restricción dura
     de rotación ∑|Δw| ≤ τ.
     """
-    # ✅ CRÍTICO: Fijar semillas para reproducibilidad
     np.random.seed(cfg.RANDOM_SEED)
     random.seed(cfg.RANDOM_SEED)
     
     n = len(mu_hat)
-    btc_idx, eth_idx = 0, 1          # ajusta si cambia el orden de columnas
+    btc_idx, eth_idx = 0, 1        
 
     class PortOpt(Problem):
         def __init__(self, w_prev):
@@ -41,29 +34,28 @@ def resolver_optimizacion(mu_hat: np.ndarray,
             self.w_prev = w_prev
 
         def _evaluate(self, X, out, *args, **kwargs):
-            X = np.atleast_2d(X)                 # garantiza 2-D siempre
+            X = np.atleast_2d(X)                 
             risk = _risk(X, Sigma)
 
             bruto = X @ mu_hat
             if self.w_prev is not None:
                 turnover = np.abs(X - self.w_prev).sum(axis=1)
                 neto = bruto - turnover * cfg.COST_TRADE
-                g_turn = turnover - cfg.MAX_TURNOVER     # ≤ 0  ⇒ rotación ≤ τ
+                g_turn = turnover - cfg.MAX_TURNOVER     
             else:
                 turnover = np.zeros(X.shape[0])
                 neto = bruto
-                g_turn = np.zeros_like(risk)             # sin límite en t₀
+                g_turn = np.zeros_like(risk)            
 
             ret = -neto                                  # minimizar
 
             # ---------- restricciones ----------
-            g1 = np.abs(X.sum(axis=1) - 1.0) - TOL       # |∑w−1| ≤ TOL
+            g1 = np.abs(X.sum(axis=1) - 1.0) - TOL       
             g2 = X[:, btc_idx] + X[:, eth_idx] - cfg.CRYPTO_MAX
 
             out["F"] = np.column_stack([risk, ret])
             out["G"] = np.column_stack([g1, g2, g_turn])
 
-    # ✅ REPRODUCIBILIDAD: Usar semilla también en el minimize
     res = minimize(
         PortOpt(w_prev),
         NSGA2(pop_size=cfg.POP_SIZE),
@@ -73,8 +65,6 @@ def resolver_optimizacion(mu_hat: np.ndarray,
     )
     return res
 
-
-# ───────────────────────────── selector final ───────────────────────────────
 def elegir_w_star(res,
                   mu_hat: np.ndarray,
                   Sigma: np.ndarray,
